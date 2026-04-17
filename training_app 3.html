@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>하루 한 걸음</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="하루 한 걸음">
+<meta name="mobile-web-app-capable" content="yes">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+  :root {
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --green: #4CAF82;
+    --yellow: #F9C846;
+    --blue: #5B9BD5;
+    --red: #E8604C;
+    --purple: #9B6FD4;
+    --orange: #F47F3C;
+    --text: #2D2D2D;
+    --muted: #888;
+    --border: #EEE;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── TOP NAV ── */
+  .top-nav {
+    background: white;
+    padding: 16px 20px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .app-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .score-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--yellow);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  .score-badge:hover { transform: scale(1.05); }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nav-tab {
+    flex: 1;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+    font-weight: 700;
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; padding: 20px; max-width: 520px; margin: 0 auto; }
+  .view.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── DATE ── */
+  .date-display {
+    font-size: 28px;
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  /* ── SITUATION BUTTONS ── */
+  .situation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .situation-btn {
+    padding: 14px 10px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all .2s;
+    line-height: 1.4;
+  }
+  .situation-btn:hover { border-color: var(--green); background: #f0faf5; }
+  .situation-btn.selected {
+    border-color: var(--green);
+    background: #e8f7ef;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .situation-btn .emoji { font-size: 22px; display: block; margin-bottom: 6px; }
+
+  /* ── SENTENCE OPTIONS ── */
+  .sentence-option {
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .sentence-option:hover { border-color: var(--blue); background: #f0f6ff; }
+  .sentence-option.selected {
+    border-color: var(--blue);
+    background: #e8f0fb;
+  }
+
+  .sentence-main {
+    font-size: 18px;
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+
+  .sentence-hint {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── REPEAT BUTTONS ── */
+  .repeat-btns {
+    display: flex;
+    gap: 10px;
+  }
+
+  .repeat-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all .2s;
+  }
+  .repeat-btn.done {
+    border-color: var(--green);
+    background: #e8f7ef;
+    color: var(--green);
+  }
+
+  /* ── ROLE PLAY ── */
+  .speech-bubble {
+    background: #f5f5f5;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .speech-bubble::before {
+    content: '엄마 👩';
+    font-size: 11px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .answer-bubble {
+    background: #e8f7ef;
+    border: 2px solid var(--green);
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 18px;
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    color: var(--green);
+    text-align: center;
+  }
+
+  /* ── TOGGLE CHECKS ── */
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .check-item:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all .2s;
+  }
+  .check-item.checked .check-box {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .check-label { font-size: 14px; font-weight: 500; }
+  .check-sub { font-size: 12px; color: var(--muted); }
+
+  /* ── SCORE DISPLAY ── */
+  .score-display {
+    text-align: center;
+  }
+
+  .score-number {
+    font-size: 56px;
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    color: var(--yellow);
+    line-height: 1;
+  }
+
+  .score-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .stars-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 14px 0;
+    flex-wrap: wrap;
+  }
+
+  .star {
+    font-size: 26px;
+    transition: transform .3s;
+    animation: pop .3s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .reward-bar {
+    background: var(--border);
+    border-radius: 20px;
+    height: 14px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+
+  .reward-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, var(--yellow), var(--orange));
+    transition: width .6s ease;
+  }
+
+  .reward-milestone {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .reward-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: #fafafa;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .reward-item .pts {
+    font-weight: 700;
+    min-width: 36px;
+    color: var(--orange);
+  }
+  .reward-item.unlocked { background: #fff8e8; }
+
+  /* ── EMOTION STOP ── */
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: #fafafa;
+  }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--red);
+    color: white;
+    font-weight: 900;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-text { font-size: 15px; font-weight: 700; }
+
+  /* ── PRAISE ── */
+  .praise-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .praise-chip {
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    background: white;
+  }
+  .praise-chip.selected {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: white;
+    font-weight: 700;
+  }
+
+  /* ── COMPLETE BTN ── */
+  .complete-btn {
+    width: 100%;
+    padding: 18px;
+    border-radius: var(--radius);
+    border: none;
+    background: linear-gradient(135deg, var(--green), #3aab6a);
+    color: white;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all .2s;
+    box-shadow: 0 4px 16px rgba(76,175,130,0.35);
+  }
+  .complete-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(76,175,130,0.45); }
+  .complete-btn:disabled { background: #ccc; box-shadow: none; transform: none; cursor: default; }
+
+  /* ── SENTENCE CARD ── */
+  .sentence-card-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sentence-card {
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea22, #764ba222);
+    border: 1.5px solid #764ba233;
+    font-size: 15px;
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    color: #5a3fa0;
+  }
+
+  /* ── EXPLOSION MANUAL ── */
+  .manual-step {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .manual-step.s1 { background: #fff0ed; }
+  .manual-step.s2 { background: #fff8e8; }
+  .manual-step.s3 { background: #e8f7ef; }
+  .manual-step.s4 { background: #e8f0fb; }
+
+  .manual-num {
+    font-size: 11px;
+    font-weight: 900;
+    padding: 4px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .s1 .manual-num { background: var(--red); color: white; }
+  .s2 .manual-num { background: var(--orange); color: white; }
+  .s3 .manual-num { background: var(--green); color: white; }
+  .s4 .manual-num { background: var(--blue); color: white; }
+
+  .manual-content { font-size: 14px; font-weight: 500; line-height: 1.6; }
+  .manual-script {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: white;
+    font-size: 15px;
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+  }
+
+  /* ── CALENDAR ── */
+  .week-card {
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+    background: white;
+  }
+
+  .week-header {
+    font-size: 13px;
+    font-weight: 900;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .week-tag {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .day-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+  }
+  .day-row:last-child { border-bottom: none; }
+
+  .day-label {
+    font-weight: 700;
+    min-width: 20px;
+    font-size: 12px;
+  }
+
+  .day-sentence {
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--blue);
+    min-width: 130px;
+  }
+
+  .day-theme {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .day-done {
+    margin-left: auto;
+    font-size: 18px;
+  }
+
+  /* ── SENTENCE DB ── */
+  .db-category {
+    margin-bottom: 20px;
+  }
+
+  .db-cat-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .db-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .db-chip {
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: 'Gaegu', cursive;
+    font-weight: 700;
+    border: 1.5px solid;
+  }
+
+  /* ── COMPLETE OVERLAY ── */
+  .complete-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+  }
+  .complete-overlay.show { display: flex; }
+
+  .complete-box {
+    background: white;
+    border-radius: 28px;
+    padding: 36px 28px;
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
+    animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .complete-emoji { font-size: 64px; margin-bottom: 12px; }
+  .complete-title { font-family: 'Gaegu', cursive; font-size: 28px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+  .complete-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+
+  .complete-close {
+    padding: 14px 32px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── TODAY SENTENCE HIGHLIGHT ── */
+  .today-sentence-big {
+    font-family: 'Gaegu', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--blue);
+    text-align: center;
+    padding: 10px 0;
+    line-height: 1.3;
+  }
+
+  .mom-script {
+    background: #fff3cd;
+    border-left: 4px solid var(--yellow);
+    padding: 12px 16px;
+    border-radius: 0 12px 12px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 10px 0;
+  }
+
+  /* ── WEEKLY PROGRESS ── */
+  .week-progress-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  .week-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: all .3s;
+  }
+  .week-dot.done { background: var(--green); border-color: var(--green); color: white; }
+  .week-dot.today { border-color: var(--yellow); background: #fff8e8; color: var(--orange); }
+
+  .section-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div class="nav-header">
+    <div class="app-title">🌱 하루 한 걸음</div>
+    <div class="score-badge" onclick="showTab('reward')">
+      ⭐ <span id="totalScore">0</span>점
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab('today')">📅 오늘</div>
+    <div class="nav-tab" onclick="showTab('calendar')">🗓 8주</div>
+    <div class="nav-tab" onclick="showTab('reward')">🏆 보상</div>
+    <div class="nav-tab" onclick="showTab('emergency')">🚨 폭발</div>
+    <div class="nav-tab" onclick="showTab('response')">💡 대응</div>
+    <div class="nav-tab" onclick="showTab('db')">📚 문장</div>
+  </div>
+</div>
+
+<!-- ══════════════ TODAY ══════════════ -->
+<div class="view active" id="view-today">
+
+  <!-- 날짜 + 주간 진행 -->
+  <div class="card">
+    <div class="date-display" id="todayDate"></div>
+    <div class="section-label" id="weekInfo"></div>
+    <div class="week-progress-row" id="weekDots"></div>
+  </div>
+
+  <!-- 매일 체크리스트 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--green)"></span>📋 오늘 체크리스트</div>
+    <div>
+      <div class="check-item" id="cl1" onclick="toggleCheck('cl1')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">훈련 참여했다</div>
+        </div>
+      </div>
+      <div class="check-item" id="cl2" onclick="toggleCheck('cl2')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">연습 문장을 사용했다</div>
+        </div>
+      </div>
+      <div class="check-item" id="cl3" onclick="toggleCheck('cl3')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">실제로 말해보기(역할극)를 했다</div>
+        </div>
+      </div>
+      <div class="check-item" id="cl4" onclick="toggleCheck('cl4')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">감정 조절 3단계를 연습했다</div>
+        </div>
+      </div>
+      <div class="check-item" id="cl5" onclick="toggleCheck('cl5')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">끝까지 완료했다 🎉</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. 상황 선택 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--green)"></span>1. 오늘 상황 선택</div>
+    <div class="situation-grid" id="situationGrid"></div>
+  </div>
+
+  <!-- 2. 오늘의 연습 문장 -->
+  <div class="card" id="sentenceCard" style="display:none">
+    <div class="card-title"><span class="dot" style="background:var(--blue)"></span>2. 오늘의 연습 문장</div>
+    <div id="sentenceOptions"></div>
+    <div id="selectedSentenceDisplay" style="display:none">
+      <div class="today-sentence-big" id="bigSentence"></div>
+      <div class="mom-script">
+        👩 엄마 말: <strong>"오늘은 이 말을 연습해볼 거야. 같이 해보자."</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 같이 말해보기 -->
+  <div class="card" id="repeatCard" style="display:none">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>3. 같이 말해보기 3번</div>
+    <div class="mom-script">👩 엄마: <strong>"같이 말해보자. 따라 해봐."</strong></div>
+    <div class="repeat-btns">
+      <button class="repeat-btn" id="rep1" onclick="doRepeat(1)">1번 ✏️</button>
+      <button class="repeat-btn" id="rep2" onclick="doRepeat(2)">2번 ✏️</button>
+      <button class="repeat-btn" id="rep3" onclick="doRepeat(3)">3번 ✏️</button>
+    </div>
+  </div>
+
+  <!-- 4. 실제로 말해보기 -->
+  <div class="card" id="roleCard" style="display:none">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>4. 실제로 말해보기 🎭</div>
+    <div class="speech-bubble" id="roleSituation"></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;padding-left:4px">👦 아이가 말할 차례</div>
+    <div class="answer-bubble" id="roleAnswer"></div>
+    <div style="margin-top:14px">
+      <div class="check-item" id="rolePass" onclick="toggleCheck('rolePass')">
+        <div class="check-box">✓</div>
+        <div><div class="check-label">연습 문장으로 말함 ✅</div></div>
+      </div>
+      <div class="check-item" id="roleFail" onclick="toggleCheck('roleFail')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">한 번 더 해보기 🔄</div>
+          <div class="check-sub">엄마: "한 번 더 해보자. 오늘 연습 말이 뭐였지?"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 감정 조절 연습 -->
+  <div class="card" id="emotionCard" style="display:none">
+    <div class="card-title"><span class="dot" style="background:var(--red)"></span>5. 감정 조절 연습</div>
+    <div class="mom-script">👩 엄마: <strong>"화나면 어떻게 하지?"</strong></div>
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-text">행동을 멈춘다 🛑</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-text">숨 한 번 쉰다 😮‍💨</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-text">말로 한다 💬</div>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="check-item" id="emotionDone" onclick="toggleCheck('emotionDone')">
+        <div class="check-box">✓</div>
+        <div class="check-label">감정 조절 3단계 연습 완료</div>
+      </div>
+      <div class="check-item" id="ruleCheck" onclick="toggleCheck('ruleCheck')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">🏆 도전 보너스: 규칙 준수 성공 +1점</div>
+          <div class="check-sub">오늘 규칙을 지키며 훈련을 마쳤을 때 (보너스는 둘 중 하나만)</div>
+        </div>
+      </div>
+      <div class="check-item" id="attentionCheck" onclick="toggleCheck('attentionCheck')">
+        <div class="check-box">✓</div>
+        <div>
+          <div class="check-label">🌟 도전 보너스: 말로 관심 요청 성공 +1점</div>
+          <div class="check-sub">돌발행동 대신 말로 직접 요청했을 때 (보너스는 둘 중 하나만)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 칭찬 -->
+  <div class="card" id="praiseCard" style="display:none">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>6. 오늘의 칭찬</div>
+    <div class="praise-chips" id="praiseChips">
+      <div class="praise-chip" onclick="togglePraise(this)">오늘 말로 표현해서 좋았어 👍</div>
+      <div class="praise-chip" onclick="togglePraise(this)">행동을 멈춘 게 정말 잘했어 🛑</div>
+      <div class="praise-chip" onclick="togglePraise(this)">한 번 더 해보려 한 게 좋아 💪</div>
+      <div class="praise-chip" onclick="togglePraise(this)">끝까지 해서 최고야 🌟</div>
+      <div class="praise-chip" onclick="togglePraise(this)">오늘 훈련 참여해서 대단해 🎉</div>
+      <div class="praise-chip" onclick="togglePraise(this)">규칙 지킨 게 정말 좋았어 📋</div>
+    </div>
+  </div>
+
+  <!-- 7. 부모 체크 -->
+  <div class="card" id="parentCard" style="display:none">
+    <div class="card-title"><span class="dot" style="background:var(--green)"></span>7. 엄마 오늘 체크</div>
+    <div>
+      <div class="check-item" id="pc1" onclick="toggleCheck('pc1')">
+        <div class="check-box">✓</div>
+        <div class="check-label">문제 행동에 과잉 반응 안 했다</div>
+      </div>
+      <div class="check-item" id="pc2" onclick="toggleCheck('pc2')">
+        <div class="check-box">✓</div>
+        <div class="check-label">좋은 행동에 즉시 반응했다</div>
+      </div>
+      <div class="check-item" id="pc3" onclick="toggleCheck('pc3')">
+        <div class="check-box">✓</div>
+        <div class="check-label">회피를 허용하지 않았다</div>
+      </div>
+      <div class="check-item" id="pc4" onclick="toggleCheck('pc4')">
+        <div class="check-box">✓</div>
+        <div class="check-label">규칙 위반 시 즉시 중단했다</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 완료 버튼 -->
+  <button class="complete-btn" id="completeBtn" style="display:none" onclick="completeToday()">
+    🎉 오늘 훈련 완료!
+  </button>
+
+</div>
+
+<!-- ══════════════ CALENDAR ══════════════ -->
+<div class="view" id="view-calendar">
+  <div id="calendarContent"></div>
+</div>
+
+<!-- ══════════════ REWARD ══════════════ -->
+<div class="view" id="view-reward">
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>총 점수</div>
+    <div class="score-display">
+      <div class="score-number" id="rewardScore">0</div>
+      <div class="score-label">점 모음 💚 오늘도 잘 해냈어!</div>
+      <div class="stars-row" id="starsRow"></div>
+      <div class="reward-bar"><div class="reward-fill" id="rewardFill" style="width:0%"></div></div>
+      <div id="rewardMilestoneLabel" style="font-size:12px;color:var(--muted);margin-top:6px;text-align:center"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>보상 단계</div>
+    <div id="rewardList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--green)"></span>칭찬 문장 카드</div>
+    <div class="sentence-card-row">
+      <div class="sentence-card">"오늘 말로 표현해서 좋았어"</div>
+      <div class="sentence-card">"행동을 멈춘 게 정말 좋았어"</div>
+      <div class="sentence-card">"한 번 더 해보려 한 게 최고야"</div>
+      <div class="sentence-card">"오늘 잘 버텼어"</div>
+      <div class="sentence-card">"엄마가 정말 기뻐"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ EMERGENCY ══════════════ -->
+<div class="view" id="view-emergency">
+  <div class="card" style="background:linear-gradient(135deg,#fff0ed,#fff)">
+    <div class="card-title"><span class="dot" style="background:var(--red)"></span>🚨 감정 폭발 대응 매뉴얼</div>
+    <div class="manual-step s1">
+      <div class="manual-num">1단계</div>
+      <div class="manual-content">
+        <strong>행동 즉시 중단</strong><br>
+        <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+        <span class="manual-script">"멈춰. 그 행동 안 돼."</span>
+      </div>
+    </div>
+    <div class="manual-step s2">
+      <div class="manual-num">2단계</div>
+      <div class="manual-content">
+        <strong>거리 확보</strong><br>
+        잠시 물리적으로 거리를 두기<br>
+        (더 훈육 밀어붙이지 않기)
+      </div>
+    </div>
+    <div class="manual-step s3">
+      <div class="manual-num">3단계</div>
+      <div class="manual-content">
+        <strong>감정 이름 붙여주기</strong><br>
+        <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+        <span class="manual-script">"지기 싫었구나"</span>
+        <span class="manual-script">"관심 받고 싶었구나"</span>
+      </div>
+    </div>
+    <div class="manual-step s4">
+      <div class="manual-num">4단계</div>
+      <div class="manual-content">
+        <strong>행동 제한 + 대체 말 유도</strong><br>
+        <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+        <span class="manual-script">"그래도 그렇게 하는 건 안 돼"</span><br>
+        <span class="manual-script">"이렇게 말해봐 → 다시 해볼래"</span><br>
+        <span style="font-size:11px;color:#999;margin-top:6px;display:block">👦 아이가 말하기</span>
+        <span class="manual-script" style="background:#e8f7ef;color:#4CAF82;border:1.5px solid #4CAF82">"다시 해볼래"</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>⚡ IF-THEN 상황별 대응</div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">📋 규칙 위반</div>
+      <div class="manual-step s1" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">IF</div>
+        <div class="manual-content">규칙을 안 지킴</div>
+      </div>
+      <div style="text-align:center;font-size:18px;padding:4px 0">↓</div>
+      <div class="manual-step s3" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">THEN</div>
+        <div class="manual-content">
+          <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+          <span class="manual-script">"지금은 잠깐 멈추자. 규칙부터 다시 확인해보자."</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">😤 지는 상황 감정 폭발</div>
+      <div class="manual-step s1" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">IF</div>
+        <div class="manual-content">화냄</div>
+      </div>
+      <div style="text-align:center;font-size:18px;padding:4px 0">↓</div>
+      <div class="manual-step s3" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">THEN</div>
+        <div class="manual-content">
+          <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+          <span class="manual-script">"지고 싶지 않았구나."</span><br>
+          <span class="manual-script">"그래도 규칙 바꾸는 건 안 돼."</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">👀 관심 끌기 행동</div>
+      <div class="manual-step s1" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">IF</div>
+        <div class="manual-content">웃기기 / 돌발행동</div>
+      </div>
+      <div style="text-align:center;font-size:18px;padding:4px 0">↓</div>
+      <div class="manual-step s3" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">THEN</div>
+        <div class="manual-content">
+          <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+          <span class="manual-script">"지금은 그럴 때 아니야."</span> (짧게 끝)<br>
+          <span class="manual-script">"관심 받고 싶으면 이렇게 말해봐"</span><br>
+          <span style="font-size:11px;color:#999;margin-top:4px;display:block">👦 아이가 말하기</span>
+          <span class="manual-script" style="background:#e8f7ef;color:#4CAF82;border:1.5px solid #4CAF82">"나도 봐줘"</span>
+          <span class="manual-script" style="background:#e8f7ef;color:#4CAF82;border:1.5px solid #4CAF82">"나도 같이 하고 싶어"</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">👊 공격 행동</div>
+      <div class="manual-step s1" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">IF</div>
+        <div class="manual-content">때리려 함 / 발로 차려 함</div>
+      </div>
+      <div style="text-align:center;font-size:18px;padding:4px 0">↓</div>
+      <div class="manual-step s3" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">THEN</div>
+        <div class="manual-content">
+          <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+          <span class="manual-script">"멈춰. 그 행동 안 돼."</span> → 거리 확보
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">🙈 회피 행동</div>
+      <div class="manual-step s1" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">IF</div>
+        <div class="manual-content">웃으며 피함 / 모르는 척</div>
+      </div>
+      <div style="text-align:center;font-size:18px;padding:4px 0">↓</div>
+      <div class="manual-step s3" style="margin-bottom:0">
+        <div class="manual-num" style="font-size:10px">THEN</div>
+        <div class="manual-content">
+          <span style="font-size:11px;color:#999">👩 엄마가 말하기</span><br>
+          <span class="manual-script">"지금 같이 마저 해보자."</span><br>
+          <span class="manual-script">"알고 있는 것부터 해보자."</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--blue)"></span>👀 관심 행동 유형별 대응</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:#f9f9f9;border-radius:12px;padding:12px 14px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:4px">유형 1: 웃기기 / 이상한 말</div>
+        <div style="color:var(--muted)">→ <span style="background:white;padding:2px 8px;border-radius:8px;font-weight:700">"지금은 그럴 때 아니야"</span></div>
+        <div style="color:var(--green);margin-top:4px">✅ 대체: <strong>"나도 봐줘"</strong></div>
+      </div>
+      <div style="background:#f9f9f9;border-radius:12px;padding:12px 14px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:4px">유형 2: 돌발 행동 (걷기, 중얼거림)</div>
+        <div style="color:var(--muted)">→ <span style="background:white;padding:2px 8px;border-radius:8px;font-weight:700">"지금 힘들지? 자리에 앉아서 같이 해보자"</span></div>
+      </div>
+      <div style="background:#f9f9f9;border-radius:12px;padding:12px 14px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:4px">유형 3: 과도한 말걸기</div>
+        <div style="color:var(--muted)">→ <span style="background:white;padding:2px 8px;border-radius:8px;font-weight:700">"지금은 기다리는 시간"</span></div>
+      </div>
+      <div style="background:#f9f9f9;border-radius:12px;padding:12px 14px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:4px">유형 4: 일부러 모르는 척</div>
+        <div style="color:var(--muted)">→ <span style="background:white;padding:2px 8px;border-radius:8px;font-weight:700">"알고 있는 것부터 해보자"</span></div>
+      </div>
+      <div style="background:#f9f9f9;border-radius:12px;padding:12px 14px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:4px">유형 5: 고자질</div>
+        <div style="color:var(--muted)">→ <span style="background:white;padding:2px 8px;border-radius:8px;font-weight:700">"그래? 그럼 네가 어떻게 하면 좋을지 생각해보자"</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>🔴🟢 반응 최소화 vs 즉시 개입</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:#fff0ed;border-radius:14px;padding:14px">
+        <div style="font-size:12px;font-weight:900;color:var(--red);margin-bottom:8px">반응 최소화<br>(강화하지 않기)</div>
+        <div style="font-size:12px;line-height:2;color:#555">
+          웃기기<br>의미 없는 말<br>가벼운 관심 행동
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">눈 마주치지 않기<br>짧게 끊기</div>
+      </div>
+      <div style="background:#e8f7ef;border-radius:14px;padding:14px">
+        <div style="font-size:12px;font-weight:900;color:var(--green);margin-bottom:8px">즉시 개입</div>
+        <div style="font-size:12px;line-height:2;color:#555">
+          규칙 위반<br>공격 행동<br>수업 방해<br>반복 행동
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">즉시 중단<br>행동 수정</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background:#fff8e8">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>❗ 핵심 원칙</div>
+    <div style="font-size:14px;line-height:2.2">
+      👉 <strong>감정은 허용, 행동은 제한</strong><br>
+      👉 <strong>규칙 위반 시 즉시 중단</strong><br>
+      👉 관심은 <strong>"적절한 행동"</strong>에만 제공<br>
+      👉 문제 행동에는 <strong>최소 반응</strong><br>
+      👉 긴 설명보다 <strong>짧은 반복</strong>
+    </div>
+    <div style="margin-top:14px;padding:12px 16px;background:white;border-radius:12px;font-size:13px;line-height:1.8;font-style:italic;color:#555">
+      "적절한 행동에 반응하고, 문제 행동에는 담담하게"<br>
+      "지고 싶은 마음은 괜찮아. 규칙은 지켜야 해."
+    </div>
+  </div>
+
+  <!-- 훈육 순서 카드 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--blue)"></span>🗣 훈육할 때 순서</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">이 순서를 지키면 아이 뇌가 열려요</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#e8f7ef;border-radius:12px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:white;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">😮 감정 먼저 읽어주기</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">👩 "빵빵 소리 시끄러웠지? 깜짝 놀랐어?"</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:16px;color:var(--muted)">↓</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#e8f0fb;border-radius:12px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">🔍 사실 인식</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">👩 "저 차 우리한테 한 게 아니야."</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:16px;color:var(--muted)">↓</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff0ed;border-radius:12px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--red);color:white;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+        <div>
+          <div style="font-weight:700;font-size:13px">🚫 행동 제한</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">👩 "그래도 저 놈이라고 하는 건 안 돼."</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px 14px;background:#f9f9f9;border-radius:10px;font-size:12px;color:#666;line-height:1.7">
+      💡 감정을 먼저 인정받으면 아이 뇌가 열려요.<br>바로 "안 돼"로 시작하면 아이가 차단해버려요.
+    </div>
+  </div>
+
+  <!-- 외부 자극 대응 카드 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>🔊 외부 자극 반응 대응</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">소리·외부인 말 등 자극에 과하게 반응할 때</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="background:#f9f9f9;border-radius:12px;padding:12px 14px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:6px">🔊 빵빵 소리 / 큰 소음</div>
+        <div style="font-size:12px;line-height:1.8">
+          <span style="color:var(--muted)">👩 먼저:</span> <strong>"빵빵 소리 시끄러웠지?"</strong><br>
+          <span style="color:var(--muted)">👩 그다음:</span> <strong>"저 차 우리한테 한 게 아니야."</strong><br>
+          <span style="color:var(--muted)">👩 마지막:</span> <strong>"그래도 저 놈이라고 하는 건 안 돼."</strong>
+        </div>
+      </div>
+      <div style="background:#f9f9f9;border-radius:12px;padding:12px 14px;font-size:13px">
+        <div style="font-weight:700;margin-bottom:6px">🧑 외부인이 주의를 줬을 때</div>
+        <div style="font-size:12px;line-height:1.8">
+          <span style="color:var(--muted)">👩 먼저:</span> <strong>"그분 말에 기분 나빴지?"</strong><br>
+          <span style="color:var(--muted)">👩 그다음:</span> <strong>"네가 부딪힐 뻔해서 말씀하신 거야."</strong><br>
+          <span style="color:var(--muted)">👩 마지막:</span> <strong>"그래도 저 놈이라고 하는 건 안 돼."</strong>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:10px 14px;background:#fff4ee;border-radius:10px;font-size:12px;color:#666;line-height:1.7">
+      💡 이 아이는 소리 자극에 예민해요.<br>일부러 버릇없이 구는 게 아니라 뇌가 위협받았다고 느끼는 거예요.<br>감정을 먼저 읽어주면 반응 강도가 천천히 줄어들어요.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ RESPONSE ══════════════ -->
+<div class="view" id="view-response">
+
+  <!-- 훈육할 때 눈 피하고 듣는 척 만 척 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--blue)"></span>👁 훈육할 때 눈 피하고 듣는 척 만 척</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">일부러 무시하는 게 아니라 감당이 안 되는 거예요</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="padding:12px;background:#e8f0fb;border-radius:12px;font-size:13px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">✅ 이렇게 하세요</div>
+        <div style="font-weight:700;margin-bottom:4px">말 짧게, 한 가지만</div>
+        <div style="font-size:12px;color:#555;line-height:1.7">
+          👩 <strong>"지금 엄마 말 듣고 있지? 한 가지만 말할게."</strong><br>
+          → 진짜 한 가지만 말하고 끝내기
+        </div>
+      </div>
+      <div style="padding:12px;background:#fff0ed;border-radius:12px;font-size:13px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">❌ 이건 피하세요</div>
+        <div style="font-size:12px;color:#555;line-height:1.7">
+          눈 맞춤 강요 ("눈 봐!") — 더 긴장해요<br>
+          길게 설명하기 — 길어질수록 더 차단해요
+        </div>
+      </div>
+      <div style="padding:10px 14px;background:#f9f9f9;border-radius:10px;font-size:12px;color:#666;line-height:1.7">
+        💡 지금 당장 반응이 없어도 같은 말을 같은 방식으로 반복하면 뇌에 패턴으로 쌓여요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 반말하고 버릇없게 말할 때 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--orange)"></span>🗣 반말하고 버릇없게 말할 때</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="padding:12px;background:#e8f7ef;border-radius:12px;font-size:13px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">✅ 이렇게 하세요</div>
+        <div style="font-size:12px;color:#555;line-height:1.8">
+          평평한 목소리로 딱 한마디만:<br>
+          👩 <strong>"다시 말해줄래? 엄마한테는 그렇게 말하는 거 아니야."</strong><br>
+          → 기다리기<br>
+          → 고쳐서 말하면: <strong>"그렇게 말해주니까 좋다."</strong>
+        </div>
+      </div>
+      <div style="padding:12px;background:#fff0ed;border-radius:12px;font-size:13px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">❌ 이건 피하세요</div>
+        <div style="font-size:12px;color:#555">감정적으로 반응하기, 길게 설명하기</div>
+      </div>
+      <div style="padding:10px 14px;background:#f9f9f9;border-radius:10px;font-size:12px;color:#666;line-height:1.7">
+        💡 고쳐 말하지 않으면 그 요청은 진행하지 않아요.<br>말이 바뀔 때까지 기다리는 게 핵심이에요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 버릇없이 요구할 때 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>🙋 버릇없이 요구할 때</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="padding:12px;background:#e8f7ef;border-radius:12px;font-size:13px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">✅ 명령조로 요구할 때</div>
+        <div style="font-size:12px;color:#555;line-height:1.8">
+          👩 <strong>"다시 말해줄래? 엄마한테는 그렇게 말하는 거 아니야."</strong><br>
+          → 말이 바뀔 때까지 들어주지 않기
+        </div>
+      </div>
+      <div style="padding:12px;background:#e8f0fb;border-radius:12px;font-size:13px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">✅ 울거나 떼쓰면서 요구할 때</div>
+        <div style="font-size:12px;color:#555;line-height:1.8">
+          감정이 가라앉을 때까지 기다리기<br>
+          → 진정되면 그때 들어주기
+        </div>
+      </div>
+      <div style="padding:10px 14px;background:#fff0ed;border-radius:10px;font-size:12px;color:#666;line-height:1.7">
+        ⚠️ 감정이 올라와 있을 때 들어주면 "울면 된다"를 학습해요.<br>감정이 가라앉은 후에 들어주는 게 중요해요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 외부인에게 공격적 말 했을 때 -->
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--red)"></span>😤 외부인에게 공격적인 말 했을 때</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">"저 놈이 뭐라는 거야" 같은 상황</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="padding:12px;background:#e8f7ef;border-radius:12px;font-size:13px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">✅ 그 자리에서 바로, 조용하고 단호하게</div>
+        <div style="font-size:12px;color:#555;line-height:1.8">
+          👩 <strong>"방금 한 말 엄마 들었어. 할머니께 그런 말 하는 거 아니야."</strong><br>
+          👩 <strong>"네가 카트로 부딪힐 뻔했으니까 말씀하신 거야."</strong><br>
+          → 이 두 문장만, 그리고 끝
+        </div>
+      </div>
+      <div style="padding:10px 14px;background:#f9f9f9;border-radius:10px;font-size:12px;color:#666;line-height:1.7">
+        💡 이건 단순한 버릇 문제가 아니라 상대방 입장을 이해하는 능력이 아직 발달 중인 거예요.<br>
+        초등 3-4학년쯤 되면 눈에 띄게 달라져요. 지금은 반복해서 짚어주는 게 씨앗이에요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 핵심 한 줄 -->
+  <div class="card" style="background:#fff8e8">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>💡 모든 상황에서 공통 원칙</div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:2">
+      <div style="padding:10px 14px;background:white;border-radius:10px">
+        <strong>감정 먼저 → 사실 인식 → 행동 제한</strong><br>
+        <span style="font-size:12px;color:var(--muted)">이 순서가 지켜질 때 말이 아이한테 전달돼요</span>
+      </div>
+      <div style="padding:10px 14px;background:white;border-radius:10px">
+        <strong>짧게, 한 가지만, 일관되게</strong><br>
+        <span style="font-size:12px;color:var(--muted)">길고 감정적일수록 아이는 더 차단해요</span>
+      </div>
+      <div style="padding:10px 14px;background:white;border-radius:10px">
+        <strong>지금 입력된 것 같지 않아도 쌓이고 있어요</strong><br>
+        <span style="font-size:12px;color:var(--muted)">100번 말했는데 101번째에 달라지는 게 보이면 그게 쌓인 거예요</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ DB ══════════════ -->
+<div class="view" id="view-db">
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--blue)"></span>연습 문장 모음</div>
+    <div id="dbContent"></div>
+  </div>
+</div>
+
+
+<!-- 기록 오버레이 -->
+<div class="complete-overlay" id="historyOverlay">
+  <div class="complete-box" style="max-width:340px">
+    <div id="historyContent"></div>
+    <button class="complete-close" style="margin-top:16px" onclick="document.getElementById('historyOverlay').classList.remove('show')">닫기</button>
+  </div>
+</div>
+
+<!-- 완료 오버레이 -->
+<div class="complete-overlay" id="completeOverlay">
+  <div class="complete-box">
+    <div class="complete-emoji">🎉</div>
+    <div class="complete-title">오늘 훈련 완료!</div>
+    <div class="complete-sub" id="completeMsg"></div>
+    <div id="completeSummary"></div>
+    <button class="complete-close" onclick="document.getElementById('completeOverlay').classList.remove('show')">확인</button>
+  </div>
+</div>
+
+<script>
+// ══════════════ DATA ══════════════
+
+const SITUATIONS = [
+  { id: 'rule',      label: '규칙을\n안 지켰을 때', emoji: '📋' },
+  { id: 'lose',      label: '지는 상황에서\n화났을 때', emoji: '😤' },
+  { id: 'attention', label: '관심 끌기\n행동을 했을 때', emoji: '👀' },
+  { id: 'explode',   label: '감정이\n폭발했을 때', emoji: '💥' },
+  { id: 'avoid',     label: '지적\n회피할 때', emoji: '🙈' },
+  { id: 'external',  label: '외부 자극에\n반응했을 때', emoji: '🔊' },
+];
+
+const SENTENCES = {
+  rule: [
+    { text: '"다시 할게요"', hint: '연습 포인트: 규칙 따르겠다는 의사를 짧게 선언' },
+    { text: '"규칙 지킬게요"', hint: '연습 포인트: 명확하게 지키겠다고 말하기' },
+    { text: '"미안해요, 다시 할게요"', hint: '연습 포인트: 잘못 인정 + 수정 의사 표현' },
+  ],
+  lose: [
+    { text: '"다음에 이길래"', hint: '연습 포인트: 패배 수용 + 재도전 의지' },
+    { text: '"속상해"', hint: '연습 포인트: 행동 대신 감정을 말로 표현' },
+    { text: '"다시 해볼래"', hint: '연습 포인트: 포기 대신 재시도 요청' },
+  ],
+  attention: [
+    { text: '"나도 봐줘"', hint: '연습 포인트: 돌발행동 대신 말로 직접 요청' },
+    { text: '"나 이것 좀 봐줘"', hint: '연습 포인트: 구체적으로 관심 요청하기' },
+    { text: '"나도 같이 하고 싶어"', hint: '연습 포인트: 참여 의사를 말로 표현' },
+  ],
+  explode: [
+    { text: '"그만! 나 화났어"', hint: '연습 포인트: 된소리로 해소하고 감정을 말로 표현' },
+    { text: '"잠깐! 나 화났어"', hint: '연습 포인트: 브레이크 + 감정 표현' },
+    { text: '"잠깐 쉬고 싶어"', hint: '연습 포인트: 스스로 진정 요청' },
+  ],
+  avoid: [
+    { text: '"해볼게요"', hint: '연습 포인트: 모르는 척 말고 시도하겠다고 말하기' },
+    { text: '"모르겠어요, 알려주세요"', hint: '연습 포인트: 모를 때 솔직하게 도움 요청' },
+    { text: '"천천히 해볼게요"', hint: '연습 포인트: 부담을 줄이며 참여 의사 표현' },
+  ],
+  external: [
+    { text: '"시끄러워"', hint: '연습 포인트: 공격적 반응 대신 감정을 짧게 말하기' },
+    { text: '"깜짝 놀랐어"', hint: '연습 포인트: 자극에 대한 감정을 말로 표현' },
+    { text: '"그냥 지나가자"', hint: '연습 포인트: 자극에 집착하지 않고 흘려보내기' },
+  ],
+};
+
+const ROLE_SCRIPTS = {
+  rule:      { mom: '"규칙 어겼잖아, 다시 해야 해"', answer: '"미안해요, 다시 할게요"' },
+  lose:      { mom: '"이번 게임 결과가 어떻게 됐지?"', answer: '"다음에 이길래"' },
+  attention: { mom: '(엄마가 다른 곳을 보고 있는 상황)', answer: '"나도 봐줘"' },
+  explode:   { mom: '"지금 많이 화났구나"', answer: '"지금 화났어"' },
+  avoid:     { mom: '"이거 할 수 있어? 해봐"', answer: '"해볼게요"' },
+  external:  { mom: '(빵빵 소리가 들리는 상황)', answer: '"시끄러워"' },
+};
+
+const WEEK_DATA = [
+  { week: '1–2주', theme: '멈추기', color: '#4CAF82',
+    days: [
+      { day: '월', sentence: '"그만! 나 화났어"', theme: '화났을 때' },
+      { day: '화', sentence: '"규칙 지킬게요"', theme: '규칙 위반' },
+      { day: '수', sentence: '"잠깐! 나 화났어"', theme: '공격 충동 올 때' },
+      { day: '목', sentence: '"다시 할게요"', theme: '규칙 어겼을 때' },
+      { day: '금', sentence: '"그만! 잠깐 쉬고 싶어"', theme: '반복 연습' },
+      { day: '토', sentence: '자유 연습', theme: '위 5개 반복' },
+      { day: '일', sentence: '복습', theme: '어려운 것 1개' },
+    ]
+  },
+  { week: '3–4주', theme: '감정 표현', color: '#F9C846',
+    days: [
+      { day: '월', sentence: '"속상해"', theme: '지는 상황' },
+      { day: '화', sentence: '"화났어"', theme: '패배 감정' },
+      { day: '수', sentence: '"기분 안 좋아"', theme: '감정 표현' },
+      { day: '목', sentence: '"잠깐 쉬고 싶어"', theme: '진정 요청' },
+      { day: '금', sentence: '"지금 화났어"', theme: '감정 폭발 전' },
+      { day: '토', sentence: '실제로 말해보기', theme: '감정 상황' },
+      { day: '일', sentence: '복습', theme: '어려운 것 1개' },
+    ]
+  },
+  { week: '5–6주', theme: '규칙 준수', color: '#5B9BD5',
+    days: [
+      { day: '월', sentence: '"규칙 지키면서 할게"', theme: '게임·놀이 규칙' },
+      { day: '화', sentence: '"다시 시작하자"', theme: '규칙 어겼을 때 리셋' },
+      { day: '수', sentence: '"차례야, 기다릴게"', theme: '순서 지키기' },
+      { day: '목', sentence: '"약속 지킬게"', theme: '약속 상황' },
+      { day: '금', sentence: '"규칙 지키면서 할게"', theme: '반복 연습' },
+      { day: '토', sentence: '실제로 말해보기', theme: '규칙 상황' },
+      { day: '일', sentence: '복습', theme: '어려운 것 1개' },
+    ]
+  },
+  { week: '7–8주', theme: '패배 수용 + 관심 요청', color: '#9B6FD4',
+    days: [
+      { day: '월', sentence: '"다음에 이길래"', theme: '패배 수용' },
+      { day: '화', sentence: '"나도 봐줘"', theme: '적절한 관심 요청' },
+      { day: '수', sentence: '"나도 같이 하고 싶어"', theme: '참여 요청' },
+      { day: '목', sentence: '"다음에 이길래"', theme: '반복 연습' },
+      { day: '금', sentence: '"나도 봐줘"', theme: '종합 정리' },
+      { day: '토', sentence: '실제로 말해보기 + 잘한 것 함께 이야기하기', theme: '전체 상황' },
+      { day: '일', sentence: '복습 + 마무리', theme: '8주 완성' },
+    ]
+  },
+];
+
+const REWARDS = [
+  { pts: 5,  label: '간식 선택 🍪', emoji: '🍪' },
+  { pts: 10, label: '놀이 선택 🎮', emoji: '🎮' },
+  { pts: 20, label: '특별 활동 🎨', emoji: '🎨' },
+  { pts: 50, label: '큰 보상 🎁',   emoji: '🎁' },
+];
+
+const DB_CATS = [
+  { label: '감정 표현', color: '#E8604C', bg: '#fff0ed',
+    items: ['그만! 나 화났어','잠깐! 나 화났어','화났어','기분 안 좋아','속상해','짜증나','답답해','힘들어','잠깐 쉬고 싶어','지금 말하기 싫어'] },
+  { label: '관심 요청', color: '#F47F3C', bg: '#fff4ee',
+    items: ['나도 봐줘','나 이것 좀 봐줘','나도 같이 하고 싶어','나도 해볼게','엄마 나 잘했어?','나 여기 있어','같이 해줄래','나도 끼워줘','나 도와줘','같이 보자'] },
+  { label: '규칙·갈등', color: '#9B6FD4', bg: '#f0ebfa',
+    items: ['규칙 지키면서 할게','다시 시작하자','차례야 기다릴게','약속 지킬게','공평하게 하자','같이 정하자','번갈아 하자','다시 해도 돼?','이야기해보자','숨 한 번 쉬고 말해'] },
+  { label: '패배 수용', color: '#5B9BD5', bg: '#e8f0fb',
+    items: ['다음에 이길래','다시 해볼래','속상해','화났어','괜찮아','다음에 잘할게','한 번 더 하자','아쉬워','다음엔 이길 수 있어','기분 안 좋아'] },
+  { label: '참여하기', color: '#4CAF82', bg: '#e8f7ef',
+    items: ['해볼게요','모르겠어요','가르쳐 주세요','한번 해볼게요','어려워요','도와주세요','알려줄래요?','천천히 할게요','같이 해볼게요','조금만 도와주세요'] },
+];
+
+// ══════════════ STATE ══════════════
+let state = JSON.parse(localStorage.getItem('trainState') || '{}');
+if (!state.totalScore) state.totalScore = 0;
+if (!state.completedDays) state.completedDays = {};
+
+let today = {
+  situation: null,
+  sentence: null,
+  repeats: [false, false, false],
+  checks: {},
+  praiseSelected: [],
+};
+
+let weekOffset = 0;
+
+// ══════════════ INIT ══════════════
+function init() {
+  renderDate();
+  renderWeekDots();
+  renderSituations();
+  renderCalendar();
+  renderReward();
+  renderDB();
+}
+
+function formatDateKey(date) {
+  return date.toISOString().split('T')[0];
+}
+
+function renderDate() {
+  const now = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('todayDate').textContent =
+    now.getFullYear() + '년 ' + (now.getMonth()+1) + '월 ' + now.getDate() + '일 (' + days[now.getDay()] + ')';
+  if (!state.startDate) {
+    state.startDate = formatDateKey(now);
+    localStorage.setItem('trainState', JSON.stringify(state));
+  }
+  const start = new Date(state.startDate);
+  const diffDays = Math.floor((now - start) / 86400000);
+  const trainingWeek = Math.floor(diffDays / 7) + 1;
+  document.getElementById('weekInfo').textContent = '훈련 ' + trainingWeek + '주차';
+}
+
+function getWeekDates(offset) {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function renderWeekDots() {
+  var el = document.getElementById('weekDots');
+  if (!el) return;
+  var dayLabels = ['월','화','수','목','금','토','일'];
+  var now = new Date();
+  var todayKey = formatDateKey(now);
+  var weekDates = getWeekDates(weekOffset);
+  var weekLabel = weekOffset === 0 ? '이번 주' : (weekOffset < 0 ? Math.abs(weekOffset) + '주 전' : weekOffset + '주 후');
+
+  var html = '<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">'
+    + '<button onclick="changeWeek(-1)" style="border:none;background:#eee;border-radius:50%;width:26px;height:26px;font-size:16px;cursor:pointer">‹</button>'
+    + '<span style="font-size:12px;font-weight:700;color:#4CAF82;min-width:60px;text-align:center">' + weekLabel + '</span>'
+    + '<button onclick="changeWeek(1)" style="border:none;background:#eee;border-radius:50%;width:26px;height:26px;font-size:16px;cursor:pointer">›</button>'
+    + '</div><div class="week-progress-row">';
+
+  for (var i = 0; i < 7; i++) {
+    var date = weekDates[i];
+    var key = formatDateKey(date);
+    var isToday = (key === todayKey && weekOffset === 0);
+    var isFuture = (date > now);
+    var record = state.completedDays[key];
+    var isDone = !!record;
+    var cls = isToday ? 'today' : (isDone ? 'done' : '');
+    var styleStr = (isFuture ? 'opacity:0.35;' : '') + (isFuture ? 'cursor:default;' : 'cursor:pointer;');
+    var onclickStr = isFuture ? '' : ('onclick="showDayRecord(' + "'" + key + "','" + dayLabels[i] + "')" + '"');
+    html += '<div class="week-dot ' + cls + '" style="' + styleStr + '" ' + onclickStr + '>' + dayLabels[i] + '</div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function changeWeek(dir) {
+  weekOffset += dir;
+  renderWeekDots();
+}
+
+function showDayRecord(dateKey, dayLabel) {
+  const record = state.completedDays[dateKey];
+  const dateObj = new Date(dateKey + 'T00:00:00');
+  const formatted = (dateObj.getMonth()+1) + '월 ' + dateObj.getDate() + '일 (' + dayLabel + ')';
+  const content = document.getElementById('historyContent');
+  const situationLabels = {
+    rule: '📋 규칙을 안 지켰을 때',
+    lose: '😤 지는 상황에서 화났을 때',
+    attention: '👀 관심 끌기 행동을 했을 때',
+    explode: '💥 감정이 폭발했을 때',
+    avoid: '🙈 지적 회피할 때',
+    external: '🔊 외부 자극에 반응했을 때',
+  };
+  if (!record) {
+    content.innerHTML = '<div style="text-align:center;padding:20px 0"><div style="font-size:40px;margin-bottom:12px">📭</div><div style="font-size:16px;font-weight:700;margin-bottom:6px">' + formatted + '</div><div style="font-size:14px;color:var(--muted)">이 날은 훈련 기록이 없어요</div></div>';
+  } else {
+    const score = typeof record === 'object' ? record.score : record;
+    const situation = typeof record === 'object' ? record.situation : null;
+    const sentence = typeof record === 'object' ? record.sentence : null;
+    content.innerHTML =
+      '<div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:16px">' + formatted + '</div>' +
+      (situation ? '<div style="background:#f5f5f5;border-radius:12px;padding:12px 14px;margin-bottom:10px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">오늘 상황</div><div style="font-size:14px;font-weight:700">' + (situationLabels[situation]||situation) + '</div></div>' : '') +
+      (sentence ? '<div style="background:#e8f0fb;border-radius:12px;padding:12px 14px;margin-bottom:10px;border:1.5px solid var(--blue)"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">연습 문장</div><div style="font-size:22px;font-family:Gaegu,cursive;font-weight:700;color:var(--blue)">' + sentence + '</div></div>' : '') +
+      '<div style="background:#fff8e8;border-radius:12px;padding:12px 14px;text-align:center"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">획득 점수</div><div style="font-size:32px;font-family:Gaegu,cursive;font-weight:700;color:var(--yellow)">+' + score + '점 ⭐</div></div>';
+  }
+  document.getElementById('historyOverlay').classList.add('show');
+}
+
+function renderSituations() {
+  document.getElementById('situationGrid').innerHTML = SITUATIONS.map(s =>
+    `<div class="situation-btn" id="sit-${s.id}" onclick="selectSituation('${s.id}')">
+      <span class="emoji">${s.emoji}</span>
+      ${s.label.replace('\n','<br>')}
+    </div>`
+  ).join('');
+}
+
+function selectSituation(id) {
+  today.situation = id;
+  document.querySelectorAll('.situation-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('sit-' + id).classList.add('selected');
+
+  // Show sentence options
+  const sents = SENTENCES[id];
+  document.getElementById('sentenceCard').style.display = 'block';
+  document.getElementById('selectedSentenceDisplay').style.display = 'none';
+  document.getElementById('sentenceOptions').innerHTML = sents.map((s, i) =>
+    `<div class="sentence-option" id="sopt-${i}" onclick="selectSentence(${i})">
+      <div class="sentence-main">${s.text}</div>
+      <div class="sentence-hint">👉 ${s.hint}</div>
+    </div>`
+  ).join('');
+
+  today.sentence = null;
+  today.repeats = [false,false,false];
+  today.checks = {};
+  document.getElementById('repeatCard').style.display = 'none';
+  document.getElementById('roleCard').style.display = 'none';
+  document.getElementById('emotionCard').style.display = 'none';
+  document.getElementById('praiseCard').style.display = 'none';
+  document.getElementById('parentCard').style.display = 'none';
+  document.getElementById('completeBtn').style.display = 'none';
+  document.getElementById('rep1').className = 'repeat-btn';
+  document.getElementById('rep2').className = 'repeat-btn';
+  document.getElementById('rep3').className = 'repeat-btn';
+
+  setTimeout(() => document.getElementById('sentenceCard').scrollIntoView({behavior:'smooth'}), 100);
+}
+
+function selectSentence(idx) {
+  today.sentence = idx;
+  const sent = SENTENCES[today.situation][idx];
+  document.querySelectorAll('.sentence-option').forEach(b => b.classList.remove('selected'));
+  document.getElementById('sopt-' + idx).classList.add('selected');
+  document.getElementById('sentenceOptions').style.display = 'none';
+  document.getElementById('selectedSentenceDisplay').style.display = 'block';
+  document.getElementById('bigSentence').textContent = sent.text;
+
+  // Role play
+  const role = ROLE_SCRIPTS[today.situation];
+  document.getElementById('roleSituation').textContent = role.mom;
+  document.getElementById('roleAnswer').textContent = sent.text;
+
+  document.getElementById('repeatCard').style.display = 'block';
+  document.getElementById('roleCard').style.display = 'block';
+  document.getElementById('emotionCard').style.display = 'block';
+  document.getElementById('praiseCard').style.display = 'block';
+  document.getElementById('parentCard').style.display = 'block';
+  document.getElementById('completeBtn').style.display = 'block';
+
+  setTimeout(() => document.getElementById('repeatCard').scrollIntoView({behavior:'smooth'}), 100);
+}
+
+function doRepeat(n) {
+  var btn = document.getElementById('rep'+n);
+  var isDone = today.repeats[n-1];
+  if (isDone) {
+    today.repeats[n-1] = false;
+    btn.className = 'repeat-btn';
+    btn.textContent = n + '번 ✏️';
+  } else {
+    today.repeats[n-1] = true;
+    btn.className = 'repeat-btn done';
+    btn.textContent = n + '번 ✅';
+  }
+}
+
+function toggleCheck(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isChecked = el.classList.toggle('checked');
+  today.checks[id] = isChecked;
+}
+
+function togglePraise(el) {
+  el.classList.toggle('selected');
+}
+
+function completeToday() {
+  const dateKey = formatDateKey(new Date());
+
+  if (state.completedDays[dateKey]) {
+    const prev = state.completedDays[dateKey];
+    const prevScore = typeof prev === 'object' ? prev.score : prev;
+    state.totalScore = Math.max(0, (state.totalScore || 0) - prevScore);
+    delete state.completedDays[dateKey];
+    localStorage.setItem('trainState', JSON.stringify(state));
+    document.getElementById('totalScore').textContent = state.totalScore;
+    document.getElementById('completeBtn').textContent = '🎉 오늘 훈련 완료!';
+    document.getElementById('completeBtn').style.background = 'linear-gradient(135deg, var(--green), #3aab6a)';
+    renderReward();
+    renderWeekDots();
+    return;
+  }
+
+  let score = 0;
+  score += 1; // 참여 + 완료
+  if (today.sentence !== null) score += 1; // 연습 문장 사용
+  // 도전 보너스: 규칙 준수 또는 관심 요청 중 하나만 (최대 1점)
+  if (today.checks['ruleCheck'] || today.checks['attentionCheck']) score += 1;
+
+  state.totalScore = (state.totalScore || 0) + score;
+
+  const situationId = today.situation;
+  const sentenceText = (today.sentence !== null && situationId)
+    ? SENTENCES[situationId][today.sentence].text : null;
+
+  state.completedDays[dateKey] = { score: score, situation: situationId, sentence: sentenceText };
+  localStorage.setItem('trainState', JSON.stringify(state));
+
+  document.getElementById('totalScore').textContent = state.totalScore;
+  document.getElementById('completeBtn').textContent = '↩️ 오늘 완료 취소';
+  document.getElementById('completeBtn').style.background = 'linear-gradient(135deg, #aaa, #888)';
+
+  const msgs = [
+    '오늘 ' + score + '점 획득! 🌟\n총 ' + state.totalScore + '점이 됐어요.',
+    '정말 잘했어요! +' + score + '점\n총 ' + state.totalScore + '점!',
+    '훈련 완료! ' + score + '점 추가!\n총 ' + state.totalScore + '점 모았어요 🎉',
+  ];
+
+  // 오늘 학습 내용 표시
+  const situationLabels = {
+    rule: '📋 규칙을 안 지켰을 때',
+    lose: '😤 지는 상황에서 화났을 때',
+    attention: '👀 관심 끌기 행동을 했을 때',
+    explode: '💥 감정이 폭발했을 때',
+    avoid: '🙈 지적 회피할 때',
+    external: '🔊 외부 자극에 반응했을 때',
+  };
+  const sitLabel = situationId ? (situationLabels[situationId] || '') : '';
+  const summaryHtml = '<div style="margin-top:12px;text-align:left">'
+    + (sitLabel ? '<div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:12px"><span style="color:#888">오늘 상황</span><br><strong>' + sitLabel + '</strong></div>' : '')
+    + (sentenceText ? '<div style="background:#e8f0fb;border-radius:10px;padding:8px 12px;font-size:12px;border:1.5px solid #5B9BD5"><span style="color:#888">연습 문장</span><br><strong style="font-size:16px;font-family:Gaegu,cursive;color:#5B9BD5">' + sentenceText + '</strong></div>' : '')
+    + '</div>';
+
+  document.getElementById('completeMsg').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('completeSummary').innerHTML = summaryHtml;
+  document.getElementById('completeOverlay').classList.add('show');
+  renderReward();
+  renderWeekDots();
+}
+
+// ══════════════ CALENDAR ══════════════
+function renderCalendar() {
+  const html = WEEK_DATA.map(w => `
+    <div class="week-card">
+      <div class="week-header">
+        <span class="week-tag" style="background:${w.color}">${w.week}</span>
+        ${w.theme}
+      </div>
+      ${w.days.map(d => `
+        <div class="day-row">
+          <span class="day-label" style="color:${w.color}">${d.day}</span>
+          <span class="day-sentence">${d.sentence}</span>
+          <span class="day-theme">${d.theme}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+  document.getElementById('calendarContent').innerHTML = html;
+}
+
+// ══════════════ REWARD ══════════════
+function renderReward() {
+  const score = state.totalScore || 0;
+  document.getElementById('rewardScore').textContent = score;
+  document.getElementById('totalScore').textContent = score;
+
+  // Stars - 1점마다 별 1개 (최대 50개)
+  const starCount = Math.min(score, 50);
+  document.getElementById('starsRow').innerHTML = Array(starCount).fill('<span class="star">⭐</span>').join('');
+
+  // 다음 보상 목표까지 진행도
+  const milestones = [5, 10, 20, 50];
+  let nextMilestone = milestones.find(m => m > score) || 50;
+  let prevMilestone = 0;
+  for (let i = milestones.length - 1; i >= 0; i--) {
+    if (milestones[i] <= score) { prevMilestone = milestones[i]; break; }
+  }
+  const range = nextMilestone - prevMilestone;
+  const progress = score - prevMilestone;
+  const pct = Math.min(progress / range * 100, 100);
+  document.getElementById('rewardFill').style.width = pct + '%';
+
+  // 마일스톤 표시 업데이트
+  document.getElementById('rewardMilestoneLabel').textContent =
+    score >= 50 ? '🎉 50점 달성!' : (nextMilestone - score) + '점 더 모으면 다음 보상!';
+
+  // Reward list
+  document.getElementById('rewardList').innerHTML = REWARDS.map(r => {
+    const unlocked = score >= r.pts;
+    const remain = r.pts - score;
+    return '<div class="reward-item ' + (unlocked ? 'unlocked' : '') + '">'
+      + '<span style="font-size:22px">' + r.emoji + '</span>'
+      + '<span class="pts">' + r.pts + '점</span>'
+      + '<span style="flex:1">' + r.label + '</span>'
+      + '<span>' + (unlocked ? '✅ 달성!' : remain + '점 남음') + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+// ══════════════ DB ══════════════
+function renderDB() {
+  document.getElementById('dbContent').innerHTML = DB_CATS.map(c => `
+    <div class="db-category">
+      <div class="db-cat-title"><span style="font-size:16px">●</span> ${c.label}</div>
+      <div class="db-chips">
+        ${c.items.map(item => `<div class="db-chip" style="color:${c.color};border-color:${c.color}33;background:${c.bg}">"${item}"</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════════ TAB ══════════════
+function showTab(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  const tabs = ['today','calendar','reward','emergency','response','db'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(id)].classList.add('active');
+  window.scrollTo(0,0);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  try { init(); } catch(e) { console.log('Init error:', e); }
+});
+</script>
+</body>
+</html>
